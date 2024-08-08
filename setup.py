@@ -5,10 +5,12 @@ DESCRIPTION = 'ESSL assets management'
 LONG_DESCRIPTION = 'Internal helper package for ESSL assets management'
 setup(
     name='espy_pdfier',
-    version='0.4',
+    version='0.9',
     packages=find_packages(),
     install_requires=[
         'reportlab==4.2.0',
+        'pillow==10.3.0',
+        'boto3==1.34.103',
         ],
     author='Femi Adigun',
     author_email='femi.adigun@myeverlasting.net',
