@@ -10,11 +10,12 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 """
 
-from dotenv import load_dotenv
-import os
 
-load_dotenv()
-SCHEMA = os.getenv("db_schema")
-ACCESS_KEY = os.getenv("aws_s3_key")
-SECRET_KEY = os.getenv("aws_s3_secret")
-IMAGE_SIZE_MB = os.getenv("image_size_mb")
+def generate_invoice_pd():
+    """Generate PDF invoice from object."""
+    pass
+
+
+def generate_receipt_pdf():
+    """Generate receipt for pdf."""
+    pass

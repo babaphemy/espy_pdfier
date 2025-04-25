@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Invoice {{ invoice_number }}</title>
+    <style type="text/css">
+      /* Base styles */
+      @page {
+        margin: 1cm;
+        size: letter portrait;
+        @bottom-right {
+          content: "Page " counter(page) " of " counter(pages);
+          font-size: 10px;
+          font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+          color: #666;
+        }
+      }
+
+      body,
+      html {
+        margin: 0;
+        padding: 0;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        color: #333333;
+        background-color: #ffffff;
+        font-size: 12pt;
+      }
+
+      /* Reset some default styles */
+      a {
+        text-decoration: none;
+        color: #4f46e5;
+      }
+
+      /* Email container - adapt for PDF */
+      .invoice-container {
+        width: 100%;
+        margin: 0 auto;
+        background-color: #ffffff;
+      }
+
+      /* Header */
+      .header {
+        padding: 20px;
+        background-color: #4f46e5;
+        text-align: center;
+        color: white;
+      }
+
+      .header img {
+        max-width: 150px;
+        height: auto;
+      }
+
+      /* Content */
+      .content {
+        padding: 20px;
+        line-height: 1.4;
+      }
+
+      .greeting {
+        font-size: 16pt;
+        margin-bottom: 20px;
+      }
+
+      .invoice-box {
+        border: 1px solid #e0e0e0;
+        border-radius: 5px;
+        background-color: #f9f9f9;
+        padding: 20px;
+        margin-bottom: 25px;
+      }
+
+      .invoice-header {
+        margin-bottom: 20px;
+        border-bottom: 1px solid #e0e0e0;
+        padding-bottom: 15px;
+        width: 100%;
+      }
+
+      .header-row {
+        display: flex;
+        justify-content: space-between;
+      }
+
+      .company-details {
+        text-align: left;
+      }
+
+      .invoice-details {
+        text-align: right;
+      }
+
+      .invoice-id {
+        font-weight: bold;
+        font-size: 14pt;
+        margin-bottom: 5px;
+      }
+
+      .invoice-date {
+        color: #666;
+        margin-top: 5px;
+      }
+
+      .invoice-amount {
+        font-size: 18pt;
+        font-weight: bold;
+        margin: 15px 0;
+        text-align: center;
+        color: #4f46e5;
+      }
+
+      .invoice-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 15px;
+      }
+
+      .invoice-table th {
+        text-align: left;
+        padding: 10px;
+        background-color: #f0f0f0;
+        border-bottom: 1px solid #e0e0e0;
+      }
+
+      .invoice-table td {
+        padding: 10px;
+        border-bottom: 1px solid #e0e0e0;
+      }
+
+      .invoice-table tr:last-child td {
+        border-bottom: none;
+      }
+
+      .invoice-total {
+        background-color: #f0f0f0;
+        text-align: right;
+        font-weight: bold;
+      }
+
+      .payment-info {
+        margin-bottom: 25px;
+      }
+
+      .payment-info h3 {
+        margin-top: 0;
+        color: #4f46e5;
+      }
+
+      .payment-box {
+        border: 1px solid #e0e0e0;
+        border-radius: 6px;
+        padding: 15px;
+        background-color: #f9f9f9;
+        margin-top: 10px;
+        margin-bottom: 15px;
+      }
+
+      .payment-method {
+        margin-bottom: 10px;
+      }
+
+      .payment-method-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 10px;
+      }
+
+      .payment-method-header img {
+        width: 30px;
+        height: 30px;
+        object-fit: contain;
+        margin-right: 10px;
+      }
+
+      .payment-method-header h4 {
+        margin: 0;
+        color: #333;
+      }
+
+      .bank-details {
+        margin: 5px 0;
+        font-family: monospace;
+        background-color: #f0f0f0;
+        padding: 10px;
+        border-radius: 4px;
+        margin-top: 10px;
+      }
+
+      .bank-details p {
+        margin: 5px 0;
+      }
+
+      .reference {
+        font-family: monospace;
+        font-weight: bold;
+      }
+
+      .important-note {
+        margin-top: 15px;
+        font-size: 11pt;
+        padding: 10px;
+        background-color: #fafafa;
+        border-left: 4px solid #4f46e5;
+      }
+
+      /* Footer */
+      .footer {
+        padding: 20px;
+        background-color: #f0f0f0;
+        text-align: center;
+        font-size: 10pt;
+        color: #666;
+      }
+
+      .invoice-status {
+        text-align: center;
+        margin-top: 20px;
+        color: #666;
+      }
+
+      .customer-details {
+        margin-top: 15px;
+        padding: 15px;
+        background-color: #f9f9f9;
+        border-radius: 5px;
+      }
+
+      .customer-details h3 {
+        margin-top: 0;
+        color: #4f46e5;
+      }
+
+      .two-column {
+        display: flex;
+        justify-content: space-between;
+      }
+
+      .column {
+        width: 48%;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="invoice-container">
+      <div class="header">
+        <img src="{{ company_logo_url }}" alt="{{ company_name }} Logo" />
+        <h1>INVOICE</h1>
+      </div>
+
+      <div class="content">
+        <div class="invoice-box">
+          <div class="invoice-header">
+            <div class="header-row">
+              <div class="company-details">
+                <h2>{{ company_name }}</h2>
+                <p>{{ company_address }}</p>
+                <p>{{ support_email }}</p>
+              </div>
+              <div class="invoice-details">
+                <div class="invoice-id">Invoice #{{ invoice_number }}</div>
+                <div class="invoice-date">Date: {{ invoice_date }}</div>
+                <div class="invoice-status">
+                  Status:
+                  <span style="font-weight: bold; color: {{ status_color }}"
+                    >{{ status }}</span
+                  >
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="customer-details">
+            <h3>Bill To:</h3>
+            <p>{{ customer_name }}</p>
+            {% if email %}
+            <p>{{ email }}</p>
+            {% endif %} {% if phone %}
+            <p>{{ phone }}</p>
+            {% endif %}
+          </div>
+
+          <div class="invoice-amount">{{ currency }} {{ amount }}</div>
+
+          <table class="invoice-table">
+            <thead>
+              <tr>
+                <th>Description</th>
+                <th style="text-align: right">Amount</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for item in invoice_items %}
+              <tr>
+                <td>{{ item.description }}</td>
+                <td style="text-align: right">
+                  {{ item.currency }} {{ item.amount }}
+                </td>
+              </tr>
+              {% endfor %}
+              <tr class="invoice-total">
+                <td>Total</td>
+                <td style="text-align: right">{{ currency }} {{ amount }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="payment-info">
+          <h3>Payment Information</h3>
+          <p>
+            Please complete your payment using one of the following methods:
+          </p>
+
+          {% for method in payment_methods %}
+          <div class="payment-box">
+            <div class="payment-method-header">
+              {% if method.logo %}
+              <img src="{{ method.logo }}" alt="{{ method.name }} logo" />
+              {% endif %}
+              <h4>{{ method.name }}</h4>
+            </div>
+
+            <div class="payment-method">
+              <p>{{ method.description }}</p>
+            </div>
+
+            {% if method.is_bank_transfer %}
+            <div class="bank-details">
+              <p>
+                <strong>Reference:</strong>
+                <span class="reference">{{ ref }}</span>
+              </p>
+            </div>
+            {% endif %}
+          </div>
+          {% endfor %}
+
+          <div class="important-note">
+            <strong>Important:</strong> Please include your invoice number {{
+            invoice_number }} in the payment reference to ensure your payment is
+            properly credited.
+          </div>
+        </div>
+      </div>
+
+      <div class="footer">
+        <p>© {{ current_year }} {{ company_name }}. All rights reserved.</p>
+        <p>{{ company_address }}</p>
+      </div>
+    </div>
+  </body>
+</html>
