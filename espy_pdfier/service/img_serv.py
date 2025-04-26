@@ -59,6 +59,26 @@ def store_image_in_s3(image_buffer, bucket_name, key) -> str:
         raise Exception(f"An error occured: {str(e)}.")
 
 
+def store_video_in_s3(image_buffer, bucket_name, key) -> str:
+    """Can be called directly to store image in S3.
+    args:
+    image_buffer: file.file from FastAPI file upload.
+    returns:
+    filename: name or key of the image in s3
+    """
+    try:
+        s3 = boto3.client(
+            "s3",
+            aws_access_key_id=CONSTANTS.ACCESS_KEY,
+            aws_secret_access_key=CONSTANTS.SECRET_KEY,
+        )
+        s3.upload_fileobj(image_buffer, bucket_name, key)
+        return f"https://essl.b-cdn.net/{key}"
+    except Exception as e:
+        logging.error(f"An error occured uploadig to s3: {str(e)}")
+        raise Exception(f"An error occured: {str(e)}.")
+
+
 def resize_and_store_images(
     image,
     bucket_name: str,
