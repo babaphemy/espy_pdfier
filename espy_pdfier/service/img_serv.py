@@ -6,6 +6,9 @@ from espy_pdfier.util import CONSTANTS
 import os
 import io
 
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
 
 def is_greater_than_allowed_size(image_path):
     if not CONSTANTS.IMAGE_SIZE_MB:
@@ -49,8 +52,8 @@ def store_image_in_s3(image_buffer, bucket_name, key) -> str:
     try:
         s3 = boto3.client(
             "s3",
-            aws_access_key_id=CONSTANTS.ACCESS_KEY,
-            aws_secret_access_key=CONSTANTS.SECRET_KEY,
+            aws_access_key_id=CONSTANTS.S3_KEY,
+            aws_secret_access_key=CONSTANTS.S3_SECRET,
         )
         s3.upload_fileobj(image_buffer, bucket_name, key)
         return f"https://{bucket_name}.s3.amazonaws.com/{key}"
@@ -69,10 +72,27 @@ def store_video_in_s3(image_buffer, bucket_name, key) -> str:
     try:
         s3 = boto3.client(
             "s3",
-            aws_access_key_id=CONSTANTS.ACCESS_KEY,
-            aws_secret_access_key=CONSTANTS.SECRET_KEY,
+            aws_access_key_id=CONSTANTS.S3_KEY,
+            aws_secret_access_key=CONSTANTS.S3_SECRET,
         )
         s3.upload_fileobj(image_buffer, bucket_name, key)
+        return f"https://essl.b-cdn.net/{key}"
+    except Exception as e:
+        logging.error(f"An error occured uploadig to s3: {str(e)}")
+        raise Exception(f"An error occured: {str(e)}.")
+
+
+def store_zip_s3(zip_bytes, bucket_name, key) -> str:
+    """Stores a zip directory of static content in s3."""
+    try:
+        s3 = boto3.client(
+            "s3",
+            aws_access_key_id=CONSTANTS.S3_KEY,
+            aws_secret_access_key=CONSTANTS.S3_SECRET,
+        )
+        s3.upload_fileobj(
+            zip_bytes, bucket_name, key, ExtraArgs={"ACL": "private"}
+        )  # read only zip
         return f"https://essl.b-cdn.net/{key}"
     except Exception as e:
         logging.error(f"An error occured uploadig to s3: {str(e)}")
