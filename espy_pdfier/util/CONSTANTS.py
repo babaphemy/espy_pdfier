@@ -15,6 +15,6 @@ import os
 
 load_dotenv()
 SCHEMA = os.getenv("db_schema")
-S3_KEY = os.getenv("aws_s3_key")
-S3_SECRET = os.getenv("aws_s3_secret")
+S3_KEY = os.getenv("S3_KEY")
+S3_SECRET = os.getenv("S3_SECRET")
 IMAGE_SIZE_MB = os.getenv("image_size_mb")
