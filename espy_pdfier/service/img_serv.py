@@ -3,6 +3,7 @@ import boto3
 from PIL import Image
 from typing import Tuple
 from espy_pdfier.util import CONSTANTS
+from espy_pdfier.service.schema import Uploader
 import os
 import io
 
@@ -40,6 +41,38 @@ def resize_image(image_bytes, max_size):
     image.save(resized_image_buffer, format=image.format)
     resized_image_buffer.seek(0)
     return resized_image_buffer
+
+
+async def gen_presigned_url(uploader: Uploader) -> str:
+    """Generates a presigned URL for accessing an object in S3.
+
+    Args:
+        bucket_name: The name of the S3 bucket.
+        key: The key of the object in the S3 bucket.
+        expiration: The time in seconds for which the presigned URL is valid.
+
+    Returns:
+        A presigned URL as a string.
+    """
+    try:
+        s3 = boto3.client(
+            "s3",
+            aws_access_key_id=CONSTANTS.S3_KEY,
+            aws_secret_access_key=CONSTANTS.S3_SECRET,
+        )
+        url = s3.generate_presigned_url(
+            "put_object",
+            Params={
+                "Bucket": uploader.bucket,
+                "Key": uploader.filename,
+                "ContentType": uploader.filetype,
+            },
+            ExpiresIn=uploader.expiration,
+        )
+        return url
+    except Exception as e:
+        logging.error(f"An error occurred generating presigned URL: {str(e)}")
+        raise Exception(f"An error occurred: {str(e)}.")
 
 
 def store_image_in_s3(image_buffer, bucket_name, key) -> str:
