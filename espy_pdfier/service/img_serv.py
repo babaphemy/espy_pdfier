@@ -164,3 +164,17 @@ def resize_and_store_images(
     except Exception as e:
         logging.error(f"An error occurred resizing and storing: {str(e)}")
         raise Exception(f"An error occurred: {str(e)}.")
+
+
+def delete_s3(bucket_name: str, key: str) -> None:
+    """Deletes an object from S3."""
+    try:
+        s3 = boto3.client(
+            "s3",
+            aws_access_key_id=CONSTANTS.S3_KEY,
+            aws_secret_access_key=CONSTANTS.S3_SECRET,
+        )
+        s3.delete_object(Bucket=bucket_name, Key=key)
+    except Exception as e:
+        logging.error(f"An error occurred deleting from S3: {str(e)}")
+        raise Exception(f"An error occurred: {str(e)}.")
