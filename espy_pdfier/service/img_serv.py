@@ -178,3 +178,18 @@ def delete_s3(bucket_name: str, key: str) -> None:
     except Exception as e:
         logging.error(f"An error occurred deleting from S3: {str(e)}")
         raise Exception(f"An error occurred: {str(e)}.")
+
+
+def get_s3_object(bucket_name: str, key: str) -> bytes:
+    """Retrieves an object from S3."""
+    try:
+        s3 = boto3.client(
+            "s3",
+            aws_access_key_id=CONSTANTS.S3_KEY,
+            aws_secret_access_key=CONSTANTS.S3_SECRET,
+        )
+        response = s3.get_object(Bucket=bucket_name, Key=key)
+        return response["Body"].read()
+    except Exception as e:
+        logging.error(f"An error occurred retrieving from S3: {str(e)} for key {key}")
+        raise Exception(f"An error occurred: {str(e)}.")
