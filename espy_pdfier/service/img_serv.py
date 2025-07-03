@@ -78,7 +78,11 @@ async def gen_presigned_url(uploader: Uploader) -> str:
 def check_s3_object_exists(bucket: str, key: str) -> bool:
     """Check if S3 object exists."""
     try:
-        s3 = boto3.client("s3")
+        s3 = boto3.client(
+            "s3",
+            aws_access_key_id=CONSTANTS.S3_KEY,
+            aws_secret_access_key=CONSTANTS.S3_SECRET,
+        )
         s3.head_object(Bucket=bucket, Key=key)
         return True
     except s3.exceptions.ClientError as e:
@@ -209,12 +213,11 @@ def get_s3_object(bucket_name: str, key: str) -> bytes:
 def get_s3_object_stream(bucket_name: str, key: str, range_header: str = None):
     """Retrieves an S3 object for streaming."""
     try:
-        session = boto3.Session(
+        s3 = boto3.client(
+            "s3",
             aws_access_key_id=CONSTANTS.S3_KEY,
             aws_secret_access_key=CONSTANTS.S3_SECRET,
-            region_name="us-west-1",
         )
-        s3 = session.client("s3")
 
         get_object_params = {"Bucket": bucket_name, "Key": key}
         if range_header:
@@ -231,12 +234,11 @@ def get_s3_object_stream(bucket_name: str, key: str, range_header: str = None):
 def get_s3_object_metadata(bucket_name: str, key: str):
     """Get S3 object metadata."""
     try:
-        session = boto3.Session(
+        s3 = boto3.client(
+            "s3",
             aws_access_key_id=CONSTANTS.S3_KEY,
             aws_secret_access_key=CONSTANTS.S3_SECRET,
-            region_name="us-west-1",
         )
-        s3 = session.client("s3")
         return s3.head_object(Bucket=bucket_name, Key=key)
     except Exception as e:
         logging.error(
